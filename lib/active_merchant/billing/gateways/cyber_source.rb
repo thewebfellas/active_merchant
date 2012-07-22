@@ -124,10 +124,6 @@ module ActiveMerchant #:nodoc:
         setup_address_hash(options)
         commit(build_auth_request(money, creditcard_or_reference, options), options )
       end
-      
-      def validate_payer_authentication(pares)
-        commit(build_validation_request(pares), options )
-      end
 
       def auth_reversal(money, identification, options = {})
         commit(build_auth_reversal_request(money, identification, options), options)
@@ -234,17 +230,11 @@ module ActiveMerchant #:nodoc:
         add_creditcard_or_subscription(xml, money, creditcard_or_reference, options)
         add_auth_service(xml)
         add_payer_authentication_service(xml) if options[:payer_authentication]
+        add_payer_authentication_validation_service(xml, pares) if options[:pares]
         add_business_rules_data(xml)
         xml.target!
       end
       
-      def build_validation_request(pares)
-        xml = Builder::XmlMarkup.new :indent => 2
-        add_auth_service(xml)
-        add_payer_authentication_validation_service(xml, pares)
-        xml.target!
-      end
-        
       def build_tax_calculation_request(creditcard, options)
         xml = Builder::XmlMarkup.new :indent => 2
         add_address(xml, creditcard, options[:billing_address], options, false)
