@@ -47,9 +47,9 @@ module ActiveMerchant #:nodoc:
       # map response codes to something humans can read
       @@response_codes = {
         :r100 => "Successful transaction",
-        :r101 => "Request is missing one or more required fields" ,
+        :r101 => "One or more required fields are missing - please check you have entered your card details correctly" ,
         :r102 => "One or more fields contains invalid data",
-        :r150 => "General failure",
+        :r150 => "There has been an error processing your card, if this situation persists please contact support",
         :r151 => "The request was received but a server time-out occurred",
         :r152 => "The request was received, but a service timed out",
         :r200 => "The authorization request was approved by the issuing bank but declined by CyberSource because it did not pass the AVS check",
@@ -123,6 +123,10 @@ module ActiveMerchant #:nodoc:
         requires!(options,  :order_id)
         setup_address_hash(options)
         commit(build_auth_request(money, creditcard_or_reference, options), options )
+      end
+      
+      def validate_payer_authentication(pares)
+        commit(build_validation_request(pares), options )
       end
 
       def auth_reversal(money, identification, options = {})
@@ -233,7 +237,14 @@ module ActiveMerchant #:nodoc:
         add_business_rules_data(xml)
         xml.target!
       end
-
+      
+      def build_validation_request(pares)
+        xml = Builder::XmlMarkup.new :indent => 2
+        add_auth_service(xml)
+        add_payer_authentication_validation_service(xml, pares)
+        xml.target!
+      end
+        
       def build_tax_calculation_request(creditcard, options)
         xml = Builder::XmlMarkup.new :indent => 2
         add_address(xml, creditcard, options[:billing_address], options, false)
@@ -412,6 +423,12 @@ module ActiveMerchant #:nodoc:
       
       def add_payer_authentication_service(xml)
         xml.tag! 'payerAuthEnrollService', {'run' => 'true'}
+      end
+      
+      def add_payer_authentication_validation_service(xml, pares)
+        xml.tag! 'payerAuthValidateService', {'run' => 'true'} do
+          xml.tag!('signedPARes', pares)
+        end
       end
 
       def add_capture_service(xml, request_id, request_token)
