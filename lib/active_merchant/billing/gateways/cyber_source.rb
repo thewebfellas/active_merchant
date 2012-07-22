@@ -535,11 +535,11 @@ module ActiveMerchant #:nodoc:
         authorization = success ? [ options[:order_id], response[:requestID], response[:requestToken] ].compact.join(";") : nil
 
         payer_authentication = {}
-        payer_authentication[:xid] << response[:xid] if response[:xid].present?
-        payer_authentication[:proofXML] << response[:proofXML] if response[:proofXML].present?
-        payer_authentication[:paReq] << response[:paReq] if response[:paReq].present?
-        payer_authentication[:acsURL] << response[:acsURL] if response[:acsURL].present?
-        payer_authentication[:veresEnrolled] << response[:veresEnrolled] if response[:veresEnrolled].present?
+        payer_authentication[:xid] = response[:xid] if response[:xid].present?
+        payer_authentication[:proofXML] = response[:proofXML] if response[:proofXML].present?
+        payer_authentication[:paReq] = response[:paReq] if response[:paReq].present?
+        payer_authentication[:acsURL] = response[:acsURL] if response[:acsURL].present?
+        payer_authentication[:veresEnrolled] = response[:veresEnrolled] if response[:veresEnrolled].present?
         
         Response.new(success, message, response,
           :test => test?,
