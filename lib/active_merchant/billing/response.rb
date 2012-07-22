@@ -26,6 +26,7 @@ module ActiveMerchant #:nodoc:
         @fraud_review = options[:fraud_review]
         @avs_result = AVSResult.new(options[:avs_result]).to_hash
         @cvv_result = CVVResult.new(options[:cvv_result]).to_hash
+        @payer_authentication = options[:payer_authentication]
       end
     end
 
@@ -52,7 +53,7 @@ module ActiveMerchant #:nodoc:
         @responses.all?{|r| r.success?}
       end
 
-      %w(params message test authorization avs_result cvv_result test? fraud_review?).each do |m|
+      %w(params message test authorization avs_result cvv_result test? fraud_review? payer_authentication).each do |m|
         class_eval %(
           def #{m}
             @responses.last.#{m}

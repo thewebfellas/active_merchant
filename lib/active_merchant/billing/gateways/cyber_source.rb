@@ -534,11 +534,19 @@ module ActiveMerchant #:nodoc:
         message = @@response_codes[('r' + response[:reasonCode]).to_sym] rescue response[:message]
         authorization = success ? [ options[:order_id], response[:requestID], response[:requestToken] ].compact.join(";") : nil
 
+        payer_authentication = {}
+        payer_authentication[:xid] << response[:xid] if response[:xid].present?
+        payer_authentication[:proofXML] << response[:proofXML] if response[:proofXML].present?
+        payer_authentication[:paReq] << response[:paReq] if response[:paReq].present?
+        payer_authentication[:acsURL] << response[:acsURL] if response[:acsURL].present?
+        payer_authentication[:veresEnrolled] << response[:veresEnrolled] if response[:veresEnrolled].present?
+        
         Response.new(success, message, response,
           :test => test?,
           :authorization => authorization,
           :avs_result => { :code => response[:avsCode] },
-          :cvv_result => response[:cvCode]
+          :cvv_result => response[:cvCode],
+          :payer_authentication => payer_authentication
         )
       end
 
