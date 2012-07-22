@@ -230,7 +230,7 @@ module ActiveMerchant #:nodoc:
         add_creditcard_or_subscription(xml, money, creditcard_or_reference, options)
         add_auth_service(xml)
         add_payer_authentication_service(xml) if options[:payer_authentication]
-        add_payer_authentication_validation_service(xml, pares) if options[:pares]
+        add_payer_authentication_validation_service(xml, options[:pares]) if options[:pares]
         add_business_rules_data(xml)
         xml.target!
       end
