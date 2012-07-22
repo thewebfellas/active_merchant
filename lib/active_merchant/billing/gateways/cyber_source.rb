@@ -534,6 +534,8 @@ module ActiveMerchant #:nodoc:
         message = @@response_codes[('r' + response[:reasonCode]).to_sym] rescue response[:message]
         authorization = success ? [ options[:order_id], response[:requestID], response[:requestToken] ].compact.join(";") : nil
 
+        payer_authentication_required = response[:reasonCode].to_i == 475 && response[:decision] == "REJECT"
+
         payer_authentication = {}
         payer_authentication[:xid] = response[:xid] if response[:xid].present?
         payer_authentication[:proofXML] = response[:proofXML] if response[:proofXML].present?
@@ -546,7 +548,8 @@ module ActiveMerchant #:nodoc:
           :authorization => authorization,
           :avs_result => { :code => response[:avsCode] },
           :cvv_result => response[:cvCode],
-          :payer_authentication => payer_authentication
+          :payer_authentication => payer_authentication,
+          :payer_authentication_required => payer_authentication_required
         )
       end
 

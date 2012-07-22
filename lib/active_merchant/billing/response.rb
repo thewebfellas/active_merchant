@@ -10,6 +10,10 @@ module ActiveMerchant #:nodoc:
       def success?
         @success
       end
+      
+      def payer_authentication_required?
+        @payer_authentication_required
+      end
 
       def test?
         @test
@@ -27,6 +31,7 @@ module ActiveMerchant #:nodoc:
         @avs_result = AVSResult.new(options[:avs_result]).to_hash
         @cvv_result = CVVResult.new(options[:cvv_result]).to_hash
         @payer_authentication = options[:payer_authentication]
+        @payer_authentication_required = options[:payer_authentication_required]
       end
     end
 
