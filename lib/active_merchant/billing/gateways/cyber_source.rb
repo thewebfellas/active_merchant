@@ -227,7 +227,7 @@ module ActiveMerchant #:nodoc:
 
       def build_auth_request(money, creditcard_or_reference, options)
         xml = Builder::XmlMarkup.new :indent => 2
-        add_creditcard_or_subscription(xml, money, creditcard_or_reference, options)
+        add_creditcard_or_subscription(xml, money, creditcard_or_reference, options) unless options[:pares]
         add_auth_service(xml)
         add_payer_authentication_service(xml) if options[:payer_authentication]
         add_payer_authentication_validation_service(xml, options[:pares]) if options[:pares]
