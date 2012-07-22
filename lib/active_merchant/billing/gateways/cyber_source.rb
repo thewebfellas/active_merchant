@@ -229,6 +229,7 @@ module ActiveMerchant #:nodoc:
         xml = Builder::XmlMarkup.new :indent => 2
         add_creditcard_or_subscription(xml, money, creditcard_or_reference, options)
         add_auth_service(xml)
+        add_payer_authentication_service(xml) if options[:payer_authentication]
         add_business_rules_data(xml)
         xml.target!
       end
@@ -407,6 +408,10 @@ module ActiveMerchant #:nodoc:
 
       def add_auth_service(xml)
         xml.tag! 'ccAuthService', {'run' => 'true'}
+      end
+      
+      def add_payer_authentication_service(xml)
+        xml.tag! 'payerAuthEnrollService', {'run' => 'true'}
       end
 
       def add_capture_service(xml, request_id, request_token)
