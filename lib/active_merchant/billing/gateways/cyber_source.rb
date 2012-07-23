@@ -27,7 +27,7 @@ module ActiveMerchant #:nodoc:
       TEST_URL = 'https://ics2wstest.ic3.com/commerce/1.x/transactionProcessor'
       LIVE_URL = 'https://ics2ws.ic3.com/commerce/1.x/transactionProcessor'
 
-      XSD_VERSION = "1.69"
+      XSD_VERSION = "1.74"
 
       # visa, master, american_express, discover
       self.supported_cardtypes = [:visa, :master, :american_express, :discover]
