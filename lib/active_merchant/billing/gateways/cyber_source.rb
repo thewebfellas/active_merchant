@@ -227,7 +227,7 @@ module ActiveMerchant #:nodoc:
 
       def build_auth_request(money, creditcard_or_reference, options)
         xml = Builder::XmlMarkup.new :indent => 2
-        add_creditcard_or_subscription(xml, money, creditcard_or_reference, options) unless options[:pares]
+        add_creditcard_or_subscription(xml, money, creditcard_or_reference, options) unless options[:pares] || options[:cavv] || options[:eci]
         add_auth_service(xml) unless options[:pares]
         add_payer_authentication_service(xml) if options[:payer_authentication]
         add_payer_authentication_validation_service(xml, options[:pares]) if options[:pares]
@@ -408,17 +408,14 @@ module ActiveMerchant #:nodoc:
       end
 
       def add_auth_service(xml)
-        xml.tag! 'ccAuthService', {'run' => 'true'}
+        xml.tag! 'ccAuthService', {'run' => 'true'} do
+          xml.tag!('cavv', options[:cavv]) unless @options[:cavv].blank?
+          xml.tag!('eciRaw', options[:eciRaw]) unless @options[:eci].blank?
+        end
       end
       
       def add_payer_authentication_service(xml)
         xml.tag! 'payerAuthEnrollService', {'run' => 'true'}
-      end
-      
-      def add_payer_authentication_validation_service(xml, pares)
-        xml.tag! 'payerAuthValidateService', {'run' => 'true'} do
-          xml.tag!('signedPARes', pares)
-        end
       end
 
       def add_capture_service(xml, request_id, request_token)
