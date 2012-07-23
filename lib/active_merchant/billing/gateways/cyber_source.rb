@@ -414,6 +414,12 @@ module ActiveMerchant #:nodoc:
         end
       end
       
+      def add_payer_authentication_validation_service(xml, pares)
+        xml.tag! 'payerAuthValidateService', {'run' => 'true'} do
+          xml.tag!('signedPARes', pares)
+        end
+      end
+      
       def add_payer_authentication_service(xml)
         xml.tag! 'payerAuthEnrollService', {'run' => 'true'}
       end
