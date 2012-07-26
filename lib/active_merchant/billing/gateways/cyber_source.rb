@@ -124,6 +124,12 @@ module ActiveMerchant #:nodoc:
         setup_address_hash(options)
         commit(build_auth_request(money, creditcard_or_reference, options), options )
       end
+      
+      def validate_authentication(options = {})
+        requires!(options,  :order_id)
+        setup_address_hash(options)
+        commit(build_authentication_validation_request(money, creditcard_or_reference, options), options )
+      end
 
       def auth_reversal(money, identification, options = {})
         commit(build_auth_reversal_request(money, identification, options), options)
@@ -227,11 +233,19 @@ module ActiveMerchant #:nodoc:
 
       def build_auth_request(money, creditcard_or_reference, options)
         xml = Builder::XmlMarkup.new :indent => 2
-        add_creditcard_or_subscription(xml, money, creditcard_or_reference, options) unless options[:pares]
-        add_auth_service(xml, options[:cavv], options[:eci]) unless options[:pares]
+        
+        add_creditcard_or_subscription(xml, money, creditcard_or_reference, options)
+        add_auth_service(xml)
         add_payer_authentication_service(xml) if options[:payer_authentication]
-        add_payer_authentication_validation_service(xml, options[:pares]) if options[:pares]
         add_business_rules_data(xml)
+        xml.target!
+      end
+      
+      def build_authentication_validation_request(options)
+        xml = Builder::XmlMarkup.new :indent => 2
+
+        add_payer_authentication_validation_service(xml)
+
         xml.target!
       end
       
@@ -407,16 +421,30 @@ module ActiveMerchant #:nodoc:
         end
       end
 
-      def add_auth_service(xml, cavv = "", eci = "")
+      def add_auth_service(xml)
         xml.tag! 'ccAuthService', {'run' => 'true'} do
-          xml.tag!('cavv', cavv) unless cavv.blank?
-          xml.tag!('eciRaw', eci) unless eci.blank?
+          if options[:payer_authenticated]
+            xml.tag!('cavv', options[:cavv]) unless options[:cavv].blank?
+            xml.tag!('eciRaw', options[:eci]) unless options[:eci].blank?
+            xml.tag!('xid', options[:xid]) unless options[:xid].blank?
+            xml.tag!('paresStatus', options[:pares_status]) unless options[:pares_status].blank?
+            xml.tag!('commerceIndicator', options[:commerce_indicator]) unless options[:commerce_indicator].blank?          
+          end
         end
+        
+        if options[:payer_authenticated]
+          if !options[:authentication_data].blank? || !options[:collection_indicator].blank?
+            xml.tag! 'UCAF' do
+              xml.tag!('authenticationData', options[:authentication_data]) unless options[:authentication_data].blank?
+              xml.tag!('collectionIndicator', options[:collection_indicator]) unless options[:collection_indicator].blank?
+            end
+          end
+        end        
       end
       
-      def add_payer_authentication_validation_service(xml, pares)
+      def add_payer_authentication_validation_service(xml)
         xml.tag! 'payerAuthValidateService', {'run' => 'true'} do
-          xml.tag!('signedPARes', pares)
+          xml.tag!('signedPARes', options[:pares])
         end
       end
       
@@ -546,19 +574,11 @@ module ActiveMerchant #:nodoc:
 
         payer_authentication_required = response[:reasonCode].to_i == 475 && response[:decision] == "REJECT"
 
-        payer_authentication = {}
-        payer_authentication[:xid] = response[:xid] if response[:xid].present?
-        payer_authentication[:proofXML] = response[:proofXML] if response[:proofXML].present?
-        payer_authentication[:paReq] = response[:paReq] if response[:paReq].present?
-        payer_authentication[:acsURL] = response[:acsURL] if response[:acsURL].present?
-        payer_authentication[:veresEnrolled] = response[:veresEnrolled] if response[:veresEnrolled].present?
-        
         Response.new(success, message, response,
           :test => test?,
           :authorization => authorization,
           :avs_result => { :code => response[:avsCode] },
           :cvv_result => response[:cvCode],
-          :payer_authentication => payer_authentication,
           :payer_authentication_required => payer_authentication_required
         )
       end
