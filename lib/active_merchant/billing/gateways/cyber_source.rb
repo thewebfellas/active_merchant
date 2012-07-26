@@ -120,15 +120,14 @@ module ActiveMerchant #:nodoc:
       #
       # You must supply an :order_id in the options hash
       def authorize(money, creditcard_or_reference, options = {})
-        requires!(options,  :order_id)
+        requires!(options, :order_id)
         setup_address_hash(options)
         commit(build_auth_request(money, creditcard_or_reference, options), options )
       end
       
       def validate_authentication(options = {})
-        requires!(options,  :order_id)
-        setup_address_hash(options)
-        commit(build_authentication_validation_request(money, creditcard_or_reference, options), options )
+        requires!(options, :pares)
+        commit(build_authentication_validation_request(options), options )
       end
 
       def auth_reversal(money, identification, options = {})
