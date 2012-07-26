@@ -429,15 +429,6 @@ module ActiveMerchant #:nodoc:
             xml.tag!('paresStatus', options[:pares_status]) unless options[:pares_status].blank?
           end
         end
-        
-        if options[:payer_authenticated]
-          if !options[:authentication_data].blank? || !options[:collection_indicator].blank?
-            xml.tag! 'UCAF' do
-              xml.tag!('authenticationData', options[:authentication_data]) unless options[:authentication_data].blank?
-              xml.tag!('collectionIndicator', options[:collection_indicator]) unless options[:collection_indicator].blank?
-            end
-          end
-        end        
       end
       
       def add_payer_authentication_validation_service(xml, options)
