@@ -234,7 +234,7 @@ module ActiveMerchant #:nodoc:
         xml = Builder::XmlMarkup.new :indent => 2
         
         add_creditcard_or_subscription(xml, money, creditcard_or_reference, options)
-        add_auth_service(xml)
+        add_auth_service(xml, options)
         add_payer_authentication_service(xml) if options[:payer_authentication]
         add_business_rules_data(xml)
         xml.target!
@@ -243,7 +243,7 @@ module ActiveMerchant #:nodoc:
       def build_authentication_validation_request(options)
         xml = Builder::XmlMarkup.new :indent => 2
 
-        add_payer_authentication_validation_service(xml)
+        add_payer_authentication_validation_service(xml, options)
 
         xml.target!
       end
@@ -420,7 +420,7 @@ module ActiveMerchant #:nodoc:
         end
       end
 
-      def add_auth_service(xml)
+      def add_auth_service(xml, options)
         xml.tag! 'ccAuthService', {'run' => 'true'} do
           if options[:payer_authenticated]
             xml.tag!('cavv', options[:cavv]) unless options[:cavv].blank?
@@ -441,7 +441,7 @@ module ActiveMerchant #:nodoc:
         end        
       end
       
-      def add_payer_authentication_validation_service(xml)
+      def add_payer_authentication_validation_service(xml, options)
         xml.tag! 'payerAuthValidateService', {'run' => 'true'} do
           xml.tag!('signedPARes', options[:pares])
         end
