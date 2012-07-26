@@ -427,7 +427,6 @@ module ActiveMerchant #:nodoc:
             xml.tag!('eciRaw', options[:eci]) unless options[:eci].blank?
             xml.tag!('xid', options[:xid]) unless options[:xid].blank?
             xml.tag!('paresStatus', options[:pares_status]) unless options[:pares_status].blank?
-            xml.tag!('commerceIndicator', options[:commerce_indicator]) unless options[:commerce_indicator].blank?          
           end
         end
         
