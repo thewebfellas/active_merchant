@@ -242,7 +242,7 @@ module ActiveMerchant #:nodoc:
       
       def build_authentication_validation_request(options)
         xml = Builder::XmlMarkup.new :indent => 2
-
+        
         add_payer_authentication_validation_service(xml, options)
 
         xml.target!
@@ -426,12 +426,17 @@ module ActiveMerchant #:nodoc:
             xml.tag!('cavv', options[:cavv]) unless options[:cavv].blank?
             xml.tag!('eciRaw', options[:eci]) unless options[:eci].blank?
             xml.tag!('xid', options[:xid]) unless options[:xid].blank?
-            xml.tag!('paresStatus', options[:pares_status]) unless options[:pares_status].blank?
+
+            # paresStatus is a field used for MIGS gateway only - it should not be passed for HSBC
+            # xml.tag!('paresStatus', options[:pares_status]) unless options[:pares_status].blank?
           end
         end
       end
       
       def add_payer_authentication_validation_service(xml, options)
+        xml.tag! 'card' do
+          xml.tag! 'cardType', @@credit_card_codes[card_brand(creditcard).to_sym]
+        end
         xml.tag! 'payerAuthValidateService', {'run' => 'true'} do
           xml.tag!('signedPARes', options[:pares])
         end
