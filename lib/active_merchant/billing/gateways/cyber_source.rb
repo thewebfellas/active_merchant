@@ -421,9 +421,17 @@ module ActiveMerchant #:nodoc:
       end
 
       def add_auth_service(xml, options)
+        if options[:payer_authenticated] && (!options[:authentication_data].blank? || !options[:collection_indicator].blank?)
+          xml.tag! 'ucaf' do
+            xml.tag!('authenticationData', options[:authentication_data]) unless options[:authentication_data].blank?
+            xml.tag!('collectionIndicator', options[:collection_indicator]) unless options[:collection_indicator].blank?
+          end
+        end
+          
         xml.tag! 'ccAuthService', {'run' => 'true'} do
           if options[:payer_authenticated]
             xml.tag!('cavv', options[:cavv]) unless options[:cavv].blank?
+            xml.tag!('commerceIndicator', options[:commerce_indicator]) unless options[:commerce_indicator].blank?
             xml.tag!('eciRaw', options[:eci]) unless options[:eci].blank?
             xml.tag!('xid', options[:xid]) unless options[:xid].blank?
 
