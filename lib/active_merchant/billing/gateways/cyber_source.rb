@@ -443,7 +443,7 @@ module ActiveMerchant #:nodoc:
       
       def add_payer_authentication_validation_service(xml, options)
         xml.tag! 'card' do
-          xml.tag! 'cardType', @@credit_card_codes[card_brand(options[:card_type]).to_sym]
+          xml.tag! 'cardType', @@credit_card_codes[options[:card_type].to_sym]
         end
         xml.tag! 'payerAuthValidateService', {'run' => 'true'} do
           xml.tag!('signedPARes', options[:pares])
